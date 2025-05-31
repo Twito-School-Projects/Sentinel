@@ -1,3 +1,5 @@
+using System.IO.Pipes;
+using BCrypt.Net;
 using Spectre.Console;
 
 public enum SortingOrder
@@ -26,10 +28,14 @@ public class Vault
         if (PasswordEntries.Any(e => e.Username == entry.Username))
         {
             AnsiConsole.MarkupLine("[bold red]An entry with this username already exists.[/]");
+            return;
         }
+
         PasswordEntries.Add(entry);
+        FileHandler.SavePasswordsToCSV(this, false);
+        AnsiConsole.MarkupLine($"[green]Entry for {entry.Username} added successfully.[/]");
     }
-    
+
     public void DeleteEntry(string username)
     {
         //Find an entry in the existing list
@@ -38,6 +44,7 @@ public class Vault
         if (entry != null)
         {
             PasswordEntries.Remove(entry);
+            FileHandler.SavePasswordsToCSV(this, false);
             AnsiConsole.MarkupLine($"[green]Entry for {username} deleted successfully.[/]");
         }
         else
@@ -57,6 +64,8 @@ public class Vault
             entry.Username = newEntry.Username;
             entry.EncryptedPassword = newEntry.EncryptedPassword;
             entry.Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            FileHandler.SavePasswordsToCSV(this, false);
             AnsiConsole.MarkupLine($"[green]Entry for {username} updated successfully.[/]");
         }
         else
@@ -65,7 +74,7 @@ public class Vault
         }
     }
 
-    public PasswordEntry GetEntry(string username)
+    public PasswordEntry? GetEntry(string username)
     {
         // Find an entry in the existing list
         var entry = PasswordEntries.FirstOrDefault(e => e.Username == username);
@@ -79,14 +88,38 @@ public class Vault
         return entry;
     }
 
+
     public List<PasswordEntry> GetAllEntries()
     {
-        if (PasswordEntries.Count == 0)
+        if (IsEmpty)
         {
             AnsiConsole.MarkupLine("[bold red]No entries found.[/]");
             return new List<PasswordEntry>();
         }
+
         return PasswordEntries;
+    }
+
+    public void DisplayAllEntries(SortingOrder order)
+    {
+        if (IsEmpty)
+        {
+            AnsiConsole.MarkupLine("[bold red]No entries found.[/]");
+            return;
+        }
+
+        SortEntriesByDate(order);
+        var menuTable = new Table();
+
+        menuTable.AddColumn("Username");
+        menuTable.AddColumn("Password");
+
+        foreach (var entry in PasswordEntries)
+        {
+            menuTable.AddRow(entry.Username, entry.EncryptedPassword);
+        }
+
+        AnsiConsole.Write(menuTable);
     }
     public List<PasswordEntry> FindEntries(string username)
     {
