@@ -1,0 +1,61 @@
+@startuml
+start
+
+:Start Application;
+:Load Vaults from CSV;
+
+if (User selects Vault?) then (yes)
+  :Prompt for Vault Name and Password;
+  if (Password Correct?) then (yes)
+    :Unlock Vault;
+  else (no)
+    :Display "Incorrect Password";
+    stop
+  endif
+else (no)
+  stop
+endif
+
+:Display Vault Menu;
+
+repeat
+  :Show Options:\n1. Add Entry\n2. Edit Entry\n3. Delete Entry\n4. Search\n5. Sort\n6. View All;
+  if (User selects option) then (valid)
+    fork
+      if (Add Entry?) then (yes)
+        :Prompt for Username & Password;
+        :Encrypt Password;
+        :Add Entry to Vault;
+      endif
+
+      if (Edit Entry?) then (yes)
+        :Prompt for Username;
+        :Find and Modify Entry;
+      endif
+
+      if (Delete Entry?) then (yes)
+        :Prompt for Username;
+        :Remove Entry from Vault;
+      endif
+
+      if (Search Entry?) then (yes)
+        :Prompt for Username;
+        :Binary Search for Entry;
+        :Display Result;
+      endif
+
+      if (Sort Entries?) then (yes)
+        :Prompt for Sort Order (Newest/Oldest);
+        :Apply Insertion Sort;
+      endif
+    end fork
+  else (exit)
+    break
+  endif
+repeat while (User wants to continue)
+
+:Save Changes to CSV;
+:Exit Application;
+
+stop
+@enduml

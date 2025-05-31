@@ -1,0 +1,50 @@
+@startuml
+' Main classes with PascalCase for C#
+
+class PasswordManager {
+  - Vaults: List<Vault>
+  + LoadVaults(): void
+  + SaveVaults(): void
+  + DisplayVaults(): void
+  + CreateVault(Name: string, Password: string): void
+  + DeleteVault(Name: string): void
+  + AuthenticateVault(Name: string, Password: string): Vault
+}
+
+class Vault {
+  - Name: string
+  - PasswordHash: string
+  - PasswordEntries: List<PasswordEntry>
+
+  + AddEntry(Entry: PasswordEntry): void
+  + DeleteEntry(Username: string): void
+  + EditEntry(Username: string, NewEntry: PasswordEntry): void
+  + GetEntry(Username: string): PasswordEntry
+  + GetAllEntries(): List<PasswordEntry>
+  + FindEntries(Username: string): List<PasswordEntry>
+  + SortEntriesByDate(Order: string): void
+  + GetTotalEntries(): int
+}
+
+class PasswordEntry {
+  - Username: string
+  - EncryptedPassword: string
+  - Timestamp: DateTime
+  + GetDecryptedPassword(): string
+}
+
+class PasswordGenerator {
+  + Generate(Length: int): string
+}
+
+class FileHandler {
+  + LoadFromCsv(File: string): List<Vault>
+  + SaveToCsv(File: string, Vaults: List<Vault>): void
+}
+
+PasswordManager --> Vault : Manages
+Vault --> PasswordEntry : Contains
+PasswordEntry --> PasswordGenerator : Uses >>
+PasswordManager --> FileHandler : Uses
+
+@enduml

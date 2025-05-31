@@ -1,0 +1,19 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor User
+
+rectangle "Sentinel Password Manager" {
+  User --> (Load Vaults)
+  User --> (Authenticate Vault)
+  User --> (Create Vault)
+  User --> (Add Entry)
+  User --> (Edit Entry)
+  User --> (Delete Entry)
+  User --> (Find Entries)
+  User --> (Sort Entries)
+  User --> (Generate Password)
+  User --> (Save Vaults)
+}
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+actor User
+participant PasswordManager
+participant FileHandler
+participant Vault
+participant PasswordEntry
+participant PasswordGenerator
+
+== Startup ==
+User -> PasswordManager : LoadVaults()
+PasswordManager -> FileHandler : LoadFromCsv("Vaults/vaults.csv")
+FileHandler --> PasswordManager : List<Vault>
+
+== Authenticate Vault ==
+User -> PasswordManager : AuthenticateVault("WorkVault", "1234")
+PasswordManager -> Vault : Verify password
+Vault --> PasswordManager : Authenticated Vault
+
+== Generate and Add Entry ==
+User -> PasswordGenerator : Generate(12)
+PasswordGenerator --> User : "S3cureP@ss!"
+
+User -> PasswordManager : Create new PasswordEntry("email@example.com", "S3cureP@ss!", Now)
+PasswordManager -> PasswordEntry : Constructor(...)
+PasswordManager -> Vault : AddEntry(entry)
+Vault -> PasswordEntry : Add to List<PasswordEntry>
+
+== Search for Entry ==
+User -> PasswordManager : Search for "email@example.com"
+PasswordManager -> Vault : FindEntries("email@example.com")
+Vault --> PasswordManager : List<PasswordEntry>
+PasswordManager --> User : Display search results
+
+== Sort Entries ==
+User -> PasswordManager : SortEntriesByDate("Descending")
+PasswordManager -> Vault : SortEntriesByDate("Descending")
+Vault --> PasswordManager : Entries sorted
+PasswordManager --> User : Display sorted list
+
+== Save Changes ==
+User -> PasswordManager : SaveVaults()
+PasswordManager -> FileHandler : SaveToCsv("Vaults/vaults.csv", Vaults)
+FileHandler --> PasswordManager : Save complete
+
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+start
+
+:Display Main Menu;
+
+if (User selects "Create Vault") then (yes)
+  :Input Vault Name & Password;
+  :Hash Password & Create Vault;
+  :Save Vault to File;
+  :Show Success Message;
+elseif (User selects "Authenticate Vault") then (yes)
+  :Input Vault Name & Password;
+  :Verify Credentials;
+  if (Authentication successful?) then (yes)
+    :Load Vault Entries;
+  else
+    :Show Error Message;
+  endif
+elseif (User selects "Add Entry") then (yes)
+  :Input Username & Password;
+  :Encrypt Password;
+  :Create PasswordEntry;
+  :Save Entry to Vault;
+elseif (User selects "Edit Entry") then (yes)
+  :Input Username;
+  :Modify Entry Details;
+  :Update Vault File;
+elseif (User selects "Delete Entry") then (yes)
+  :Input Username;
+  :Delete Entry;
+  :Update Vault File;
+elseif (User selects "Search Entry") then (yes)
+  :Input Username;
+  :Binary Search for Entry;
+  :Display Results;
+elseif (User selects "Sort Entries") then (yes)
+  :Choose Ascending/Descending;
+  :Sort by Timestamp (Insertion Sort);
+  :Display Sorted List;
+elseif (User selects "Generate Password") then (yes)
+  :Input Desired Length;
+  :Call PasswordGenerator;
+  :Display Generated Password;
+elseif (User selects "View Vault Summary") then (yes)
+  :Display All Entries & Total Count;
+else
+  :Invalid Selection;
+endif
+
+:Return to Main Menu;
+stop
+@enduml
