@@ -11,8 +11,9 @@ rectangle "Sentinel Password Manager" {
   User --> (Add Entry)
   User --> (Edit Entry)
   User --> (Delete Entry)
-  User --> (Find Entries)
-  User --> (Sort Entries)
+  User --> (Logout Vault)
+  User --> (Find Entries By Ascending)
+  User --> (Find Entries By Descending)
   User --> (Generate Password)
   User --> (Save Vaults)
 }

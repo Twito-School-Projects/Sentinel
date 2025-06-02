@@ -19,7 +19,8 @@ public class Program
         [ "4", "Find Entry by Name"],
         [ "5", "Display All Entries (Ascending Date)"],
         [ "6", "Display all Entries (Descending Date)"],
-        [ "7", "Exit" ]
+        [ "7", "Logout"],
+        [ "8", "Exit" ]
     ];
 
     public static void Main(string[] args)
@@ -94,6 +95,9 @@ public class Program
                     DisplayVaultEntries(SortingOrder.Descending);
                     break;
                 case 7:
+                    //Logout of vault
+                    break;
+                case 8:
                     VaultManager.SaveVaults();
                     AnsiConsole.MarkupLine("[bold green]Exiting...[/]");
                     return;
