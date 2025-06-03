@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.IO.Pipes;
+using System.Linq;
 using BCrypt.Net;
 using Spectre.Console;
 
@@ -39,7 +41,7 @@ public class Vault
     public void DeleteEntry(string username)
     {
         //Find an entry in the existing list
-        var entry = PasswordEntries.FirstOrDefault(e => e.Username == username);
+        var entry = PasswordEntries.First(e => e.Username == username);
 
         if (entry != null)
         {
@@ -56,15 +58,16 @@ public class Vault
     public void EditEntry(string username, PasswordEntry newEntry)
     {
         // Find an entry in the existing list
-        var entry = PasswordEntries.FirstOrDefault(e => e.Username == username);
+        var entry = PasswordEntries.First(e => e.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
 
         if (entry != null)
         {
             // Update the entry with new values
             entry.Username = newEntry.Username;
             entry.EncryptedPassword = newEntry.EncryptedPassword;
-            entry.Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
+            Console.WriteLine(entry.Username);
+            Console.WriteLine(entry.EncryptedPassword);
             FileHandler.SavePasswordsToCSV(this, false);
             AnsiConsole.MarkupLine($"[green]Entry for {username} updated successfully.[/]");
         }
@@ -77,9 +80,9 @@ public class Vault
     public PasswordEntry? GetEntry(string username)
     {
         // Find an entry in the existing list
-        var entry = PasswordEntries.FirstOrDefault(e => e.Username == username);
+        var entry = PasswordEntries.FirstOrDefault(e => e.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
 
-        if (entry != null)
+        if (entry == null)
         {
             AnsiConsole.MarkupLine("[bold red]No entry found with that username.[/]");
             return null;
@@ -113,10 +116,12 @@ public class Vault
 
         menuTable.AddColumn("Username");
         menuTable.AddColumn("Password");
+        menuTable.AddColumn("Date Added");
+
 
         foreach (var entry in PasswordEntries)
         {
-            menuTable.AddRow(entry.Username, entry.EncryptedPassword);
+            menuTable.AddRow(entry.Username, entry.EncryptedPassword, entry.Timestamp);
         }
 
         AnsiConsole.Write(menuTable);
@@ -155,7 +160,7 @@ public class Vault
                 DateTime.Parse(entries[j].Timestamp) > DateTime.Parse(key.Timestamp) :
                 DateTime.Parse(entries[j].Timestamp) < DateTime.Parse(key.Timestamp)))
             {
-                // Shift entries to the right
+                // Shift entries to the left
                 entries[j + 1] = entries[j];
                 j--;
             }

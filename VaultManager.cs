@@ -5,9 +5,10 @@ public static class VaultManager
 {
     public static List<Vault> Vaults { get; set; } = new List<Vault>();
     public static bool IsEmpty => Vaults.Count == 0;
-    public static string PasswordHash;
-    public static Vault CurrentVault { get; private set; }
+    public static string PasswordHash = "";
+    public static Vault? CurrentVault { get; private set; }
 
+    public static void Logout() => CurrentVault = null;
     public static void LoadVaults()
     {
         Vaults = FileHandler.LoadVaultsFromCsv();
