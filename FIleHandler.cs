@@ -4,14 +4,14 @@ namespace CulminatingCS;
 
 public static class FileHandler
 {
-    private static string VAULT_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
+    private static string ROOT_FOLDER = "Resources/";
     
     private static void EnsureDirectoryExists()
     {
-        if (Directory.Exists(VAULT_PATH)) return;
+        if (Directory.Exists(ROOT_FOLDER)) return;
         
-        Directory.CreateDirectory(VAULT_PATH);
-        AnsiConsole.MarkupLine($"[yellow]Resources directory created at: {VAULT_PATH}[/]\n");
+        Directory.CreateDirectory(ROOT_FOLDER);
+        AnsiConsole.MarkupLine($"[yellow]Resources directory created at: {ROOT_FOLDER}[/]\n");
     }
 
     /// <summary>
@@ -24,8 +24,7 @@ public static class FileHandler
         try
         {
             EnsureDirectoryExists();
-            string fileName = Path.Combine(VAULT_PATH, "vaults.csv");
-
+            string fileName = Path.Combine(ROOT_FOLDER, "vaults.csv");
             if (!File.Exists(fileName))
             {
                 AnsiConsole.MarkupLine($"[orange1]Vault does not have a file, creating one[/]\n");
@@ -33,9 +32,10 @@ public static class FileHandler
                 return [];
             }
 
+
             var vaults = new List<Vault>();
 
-            using var reader = new StreamReader(VAULT_PATH + "vaults.csv");
+            using var reader = new StreamReader(ROOT_FOLDER + "vaults.csv");
             while (reader.ReadLine() is { } line)
             {
                 var attributes = line.Split(',');
@@ -67,7 +67,7 @@ public static class FileHandler
             EnsureDirectoryExists();
 
             var entries = new List<PasswordEntry>();
-            string fileName = Path.Combine(VAULT_PATH, vaultName + ".csv");
+            string fileName = Path.Combine(ROOT_FOLDER, vaultName + ".csv");
 
             if (!File.Exists(fileName))
             {
@@ -109,13 +109,12 @@ public static class FileHandler
     /// <param name="fileName"></param>
     /// <param name="vaults"></param>
     /// <param name="append"></param>
-    public static void SaveVaultsToCSV(List<Vault> vaults, bool append)
+    public static void SaveVaultsToCsv(List<Vault> vaults, bool append)
     {
         try
         {
             EnsureDirectoryExists();
-
-            string fileName = Path.Combine(VAULT_PATH, "vaults.csv");
+            string fileName = Path.Combine(ROOT_FOLDER, "vaults.csv");
 
             if (!File.Exists(fileName))
             {
@@ -127,7 +126,7 @@ public static class FileHandler
             foreach (var vault in vaults)
             {
                 writer.WriteLine($"{vault.Name},{vault.PasswordHash}");
-                SavePasswordsToCSV(vault, false);
+                SavePasswordsToCsv(vault, false);
             }
         }
         catch (Exception e)
@@ -142,13 +141,13 @@ public static class FileHandler
     /// <param name="fileName"></param>
     /// <param name="vaults"></param>
     /// <param name="append"></param>
-    public static void SavePasswordsToCSV(Vault vault, bool append)
+    public static void SavePasswordsToCsv(Vault vault, bool append)
     {
         try
         {
             EnsureDirectoryExists();
 
-            string fileName = Path.Combine(VAULT_PATH, vault.Name + ".csv");
+            string fileName = Path.Combine(ROOT_FOLDER, vault.Name + ".csv");
 
             if (!File.Exists(fileName))
             {
@@ -172,11 +171,16 @@ public static class FileHandler
     {
         try
         {
-            string fileName = Path.Combine("Resources", $"{vault.Name}.csv");
+            EnsureDirectoryExists();
+            string fileName = Path.Combine(ROOT_FOLDER, $"{vault.Name}.csv");
 
             if (File.Exists(fileName))
             {
                 File.Delete(fileName);
+            }
+            else
+            {
+                AnsiConsole.MarkupLine($"[bold orange]Vault does not have a file[/]\n");
             }
         }
         catch (Exception e)

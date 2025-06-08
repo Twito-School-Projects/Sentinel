@@ -5,14 +5,15 @@ namespace CulminatingCS;
 
 public class Program
 {
-    private static string[][] vaultAuthMenu =
+    private static readonly string[][] vaultAuthMenu =
     [
         [ "1", "Login"],
         [ "2", "Create Vault"],
-        [ "3", "Exit" ]
+        [ "3", "Delete Vault"],
+        [ "4", "Exit" ]
     ];
 
-    private static string[][] vaultMenu =
+    private static readonly string[][] vaultMenu =
     [
         [ "1", "Add Entry"],
         [ "2", "Edit Entry"],
@@ -29,13 +30,11 @@ public class Program
         Run().Wait();
     }
 
-    public static async Task Run(bool ranBefore = false)
+    private static async Task Run(bool ranBefore = false)
     {
         if (!ranBefore) AnsiConsole.MarkupLine("[underline red]Sentinel Password Manager[/]\n");
 
         VaultManager.LoadVaults();
-
-
 
         if (VaultManager.IsEmpty)
         {
@@ -45,14 +44,12 @@ public class Program
 
             CreateVault();
         }
-        else
-        {
-            VaultManager.DisplayVaults();
-        }
 
         int option;
         do
         {
+            VaultManager.DisplayVaults();
+
             option = DisplayMenuOption(vaultAuthMenu, "Vault Authentication");
             switch (option)
             {
@@ -63,6 +60,9 @@ public class Program
                     CreateVault();
                     break;
                 case 3:
+                    DeleteVault();
+                    break;
+                case 4:
                     AnsiConsole.MarkupLine("[bold green]Exiting...[/]");
                     Environment.Exit(0);
                     return;
@@ -70,7 +70,7 @@ public class Program
                     AnsiConsole.MarkupLine("[bold red]Invalid option selected.[/]");
                     break;
             }
-        } while (option < 0 || option >= vaultAuthMenu.GetLength(0));
+        } while (VaultManager.CurrentVault == null);
 
         int option2;
         do
@@ -101,7 +101,8 @@ public class Program
                     break;
                 case 8:
                     AnsiConsole.MarkupLine("[bold green]Exiting...[/]");
-                    return;
+                    Environment.Exit(0);
+                    break;
                 default:
                     AnsiConsole.MarkupLine("[bold red]Invalid option selected.[/]");
                     break;
@@ -119,14 +120,14 @@ public class Program
     private static void FindVaultPasswordEntryByName()
     {
         string name = AnsiConsole.Prompt(new TextPrompt<string>("[blue] Entry Name:[/] "));
-        VaultManager.CurrentVault?.FindEntries(name);
+        List<PasswordEntry> entries = VaultManager.CurrentVault?.FindEntries(name);
 
         var menuTable = new Table();
 
         menuTable.AddColumn("Username");
         menuTable.AddColumn("Password");
 
-        foreach (var entry in VaultManager.CurrentVault!.PasswordEntries)
+        foreach (var entry in entries)
         {
             menuTable.AddRow(entry.Username, entry.EncryptedPassword);
         }
@@ -144,35 +145,41 @@ public class Program
 
         VaultManager.CurrentVault.DeleteEntry(name);
     }
+    
+    private static void DeleteVault()
+    {
+        string name = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[green] Choose a vault to delete (press 'enter' to choose one) [/]")
+                .MoreChoicesText("[grey](Move up and down to reveal more entries)[/]")
+                .AddChoices(VaultManager.Vaults.Select(x => x.Name)));
+
+        VaultManager.DeleteVault(name);
+    }
 
     private static void EditVaultPasswordEntry()
     {
+        var entries = VaultManager.CurrentVault!.GetAllEntries();
         string entryName = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title("[green] CHoose an entry to edit (press 'enter' to choose one) [/]")
+                .Title("[green] Choose an entry to edit (press 'enter' to choose one) [/]")
                 .MoreChoicesText("[grey](Move up and down to reveal more vaults)[/]")
-                .AddChoices(VaultManager.CurrentVault!.GetAllEntries().Select(x => x.Username)));
+                .AddChoices(entries.Select(x => x.Username)));
 
-        var entry = VaultManager.CurrentVault.GetEntry(entryName);
-        if (entry == null)
-        {
-            AnsiConsole.MarkupLine("[bold red]No entry found with that username.[/]");
-            return;
-        }
-
-        var updatedEntry = new PasswordEntry(entry!.Username, entry.EncryptedPassword, entry.Timestamp.ToShortDateString());
+        var entry = entries.First(x => x.Username.Contains(entryName, StringComparison.OrdinalIgnoreCase));
+        var updatedEntry = new PasswordEntry(entry.Username, entry.EncryptedPassword, entry.Timestamp);
+        
         int option = 0;
 
         while (option != 3)
         {
-
-            string a = AnsiConsole.Prompt(
+            string choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[orange1] What would you like to edit? (press 'enter' to choose one) [/]")
                     .MoreChoicesText("[grey](Move up and down to reveal more vaults)[/]")
-                    .AddChoices(new[] { "Username", "Password", "Exit" }));
+                    .AddChoices("Username", "Password", "Exit"));
 
-            switch (a)
+            switch (choice)
             {
                 case "Username":
                     string newUsername = AnsiConsole.Prompt(new TextPrompt<string>("[blue] New Username: [/] "));

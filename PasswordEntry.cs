@@ -10,6 +10,13 @@ public class PasswordEntry
         EncryptedPassword = encryptedPassword;
         Timestamp = DateTime.TryParse(timestamp, out DateTime result) ? result : DateTime.Now;
     }
+    
+    public PasswordEntry(string username, string encryptedPassword, DateTime timestamp)
+    {
+        Username = username;
+        EncryptedPassword = encryptedPassword;
+        Timestamp = timestamp;
+    }
 
     public string EncryptedPassword { get; set; }
     public DateTime Timestamp { get; set; }

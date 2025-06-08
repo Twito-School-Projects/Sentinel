@@ -18,10 +18,6 @@ public static class VaultManager
             vault.PasswordEntries = FileHandler.LoadPasswordsFromCsv(vault.Name);
         }
     }
-    // public static void SaveVaults()
-    // {
-    //     FileHandler.SaveVaultsToCSV(Vaults, false);
-    // }
 
     public static void DisplayVaults()
     {
@@ -30,10 +26,7 @@ public static class VaultManager
         vaultTable.AddColumn("Name");
         vaultTable.AddColumn("Total Entries");
 
-        var rule2 = new Rule("[blue]Vaults[/]");
-        rule2.RuleStyle("white");
-        rule2.LeftJustified();
-        AnsiConsole.Write(rule2);
+        ConsoleHelper.WriteRule("blue", "Vaults");
 
         Vaults.ForEach(vault =>
         {
@@ -53,7 +46,7 @@ public static class VaultManager
         string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
 
         Vaults.Add(new Vault(name, passwordHash));
-        FileHandler.SaveVaultsToCSV(Vaults, false);
+        FileHandler.SaveVaultsToCsv(Vaults, false);
         AnsiConsole.MarkupLine($"[green]Vault '{name}' saved successfully.[/]\n");
     }
     public static void DeleteVault(string name)
@@ -68,7 +61,7 @@ public static class VaultManager
 
         Vaults.Remove(vaultToDelete);
         FileHandler.DeleteVault(vaultToDelete);
-        FileHandler.SaveVaultsToCSV(Vaults, false);
+        FileHandler.SaveVaultsToCsv(Vaults, false);
         AnsiConsole.MarkupLine($"[green]Vault '{name}' removed successfully.[/]\n");
     }
     public static Vault? AuthenticateVault(string name, string password)
@@ -101,7 +94,7 @@ public static class VaultManager
 
     public static void Logout()
     {
-        FileHandler.SaveVaultsToCSV(Vaults, false);
+        FileHandler.SaveVaultsToCsv(Vaults, false);
         CurrentVault = null!;
     }
 }

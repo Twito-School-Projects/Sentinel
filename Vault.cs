@@ -34,7 +34,7 @@ public class Vault
         }
 
         PasswordEntries.Add(entry);
-        FileHandler.SavePasswordsToCSV(this, false);
+        FileHandler.SavePasswordsToCsv(this, false);
         AnsiConsole.MarkupLine($"[green]Entry for {entry.Username} added successfully.[/]");
     }
 
@@ -46,7 +46,7 @@ public class Vault
         if (entry != null)
         {
             PasswordEntries.Remove(entry);
-            FileHandler.SavePasswordsToCSV(this, false);
+            FileHandler.SavePasswordsToCsv(this, false);
             AnsiConsole.MarkupLine($"[green]Entry for {username} deleted successfully.[/]");
         }
         else
@@ -67,7 +67,7 @@ public class Vault
             entry.EncryptedPassword = newEntry.EncryptedPassword;
             entry.Timestamp = DateTime.Now;
 
-            FileHandler.SavePasswordsToCSV(this, false);
+            FileHandler.SavePasswordsToCsv(this, false);
             AnsiConsole.MarkupLine($"[green]Entry for {username} updated successfully.[/]");
         }
         else
