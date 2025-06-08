@@ -1,10 +1,20 @@
 namespace CulminatingCS;
 
+/// <summary>
+/// Provides functionality for generating secure random passwords.
+/// </summary>
 public static class PasswordGenerator
 {
     private static Random random = new Random();
-    private static string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[{]}|;:',<.>/?`~]";
 
+    /// <summary>The set of characters used in generated passwords.</summary>
+    private static string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+{}|;:',<.>/?`~";
+
+    /// <summary>
+    /// Generates a random password of the specified length.
+    /// </summary>
+    /// <param name="length">The desired length of the password.</param>
+    /// <returns>A randomly generated password string.</returns>
     public static string Generate(int length)
     {
         string password = "";

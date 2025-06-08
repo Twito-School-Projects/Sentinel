@@ -4,6 +4,9 @@ using Spectre.Console;
 
 namespace CulminatingCS;
 
+/// <summary>
+/// Specifies the order for sorting entries by date.
+/// </summary>
 public enum SortingOrder
 {
     Ascending,
@@ -18,6 +21,11 @@ public class Vault
     public int TotalEntries => PasswordEntries.Count;
     public bool IsEmpty => PasswordEntries.Count == 0;
 
+    /// <summary>
+    /// Initializes a new instance of the Vault class.
+    /// </summary>
+    /// <param name="name">The name of the vault.</param>
+    /// <param name="passwordHash">The hashed password for accessing the vault.</param>
     public Vault(string name, string passwordHash)
     {
         Name = name;
@@ -25,8 +33,13 @@ public class Vault
         PasswordEntries = new List<PasswordEntry>();
     }
 
+    /// <summary>
+    /// Adds a new password entry to the vault.
+    /// </summary>
+    /// <param name="entry">The password entry to add.</param>
     public void AddEntry(PasswordEntry entry)
     {
+        // Check for duplicate username
         if (PasswordEntries.Any(e => e.Username == entry.Username))
         {
             AnsiConsole.MarkupLine("[bold red]An entry with this username already exists.[/]");
@@ -38,9 +51,13 @@ public class Vault
         AnsiConsole.MarkupLine($"[green]Entry for {entry.Username} added successfully.[/]");
     }
 
+    /// <summary>
+    /// Deletes a password entry from the vault by username.
+    /// </summary>
+    /// <param name="username">The username of the entry to delete.</param>
     public void DeleteEntry(string username)
     {
-        //Find an entry in the existing list
+        // Find the entry to delete
         var entry = PasswordEntries.FirstOrDefault(e => e.Username == username);
 
         if (entry != null)
@@ -55,17 +72,22 @@ public class Vault
         }
     }
 
+    /// <summary>
+    /// Updates an existing password entry with new information.
+    /// </summary>
+    /// <param name="username">The username of the entry to edit.</param>
+    /// <param name="newEntry">The updated entry information.</param>
     public void EditEntry(string username, PasswordEntry newEntry)
     {
-        // Find an entry in the existing list
+        // Find the entry to edit
         var entry = PasswordEntries.FirstOrDefault(e => e.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
 
         if (entry != null)
         {
-            // Update the entry with new values
+            // Update entry with new values
             entry.Username = newEntry.Username;
-            entry.EncryptedPassword = newEntry.EncryptedPassword;
-            entry.Timestamp = DateTime.Now;
+            entry.Password = newEntry.Password;
+            entry.Timestamp = DateTime.Now; // Update timestamp to current time
 
             FileHandler.SavePasswordsToCsv(this, false);
             AnsiConsole.MarkupLine($"[green]Entry for {username} updated successfully.[/]");
@@ -76,9 +98,14 @@ public class Vault
         }
     }
 
+    /// <summary>
+    /// Retrieves a password entry by username.
+    /// </summary>
+    /// <param name="username">The username to search for.</param>
+    /// <returns>The matching password entry or null if not found.</returns>
     public PasswordEntry? GetEntry(string username)
     {
-        // Find an entry in the existing list
+        // Find an entry by username (case-insensitive)
         var entry = PasswordEntries.FirstOrDefault(e => e.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
 
         if (entry == null) return entry;
@@ -87,6 +114,10 @@ public class Vault
     }
 
 
+    /// <summary>
+    /// Gets all password entries in the vault.
+    /// </summary>
+    /// <returns>A list of all password entries, or an empty list if the vault is empty.</returns>
     public List<PasswordEntry> GetAllEntries()
     {
         if (!IsEmpty) return PasswordEntries;
@@ -94,6 +125,10 @@ public class Vault
         return [];
     }
 
+    /// <summary>
+    /// Displays all password entries in a formatted table, sorted by date.
+    /// </summary>
+    /// <param name="order">The order to sort the entries (ascending or descending).</param>
     public void DisplayAllEntries(SortingOrder order)
     {
         if (IsEmpty)
@@ -102,6 +137,7 @@ public class Vault
             return;
         }
 
+        // Sort entries by date according to specified order
         SortEntriesByDate(order);
         var menuTable = new Table();
 
@@ -112,14 +148,19 @@ public class Vault
 
         foreach (var entry in PasswordEntries)
         {
-            menuTable.AddRow(entry.Username, entry.EncryptedPassword, entry.Timestamp.ToShortDateString());
+            menuTable.AddRow(entry.Username, entry.Password, entry.Timestamp.ToShortDateString());
         }
 
         AnsiConsole.Write(menuTable);
     }
+    /// <summary>
+    /// Finds password entries that match a username search term.
+    /// </summary>
+    /// <param name="username">The username search term.</param>
+    /// <returns>A list of matching password entries, or an empty list if none found.</returns>
     public List<PasswordEntry> FindEntries(string username)
     {
-        // Find entries that match the username
+        // Find entries that contain the search term (case-insensitive)
         var entries = PasswordEntries.Where(e => e.Username.Contains(username, StringComparison.OrdinalIgnoreCase)).ToList();
 
         if (entries.Count != 0) return entries;
@@ -127,11 +168,20 @@ public class Vault
         return [];
     }
 
+    /// <summary>
+    /// Sorts the password entries by date.
+    /// </summary>
+    /// <param name="order">The order to sort (ascending or descending).</param>
     private void SortEntriesByDate(SortingOrder order)
     {
         InsertionSort(PasswordEntries, order);
     }
 
+    /// <summary>
+    /// Performs an insertion sort on the password entries by timestamp.
+    /// </summary>
+    /// <param name="entries">The list of entries to sort.</param>
+    /// <param name="order">The order to sort (ascending or descending).</param>
     private void InsertionSort(List<PasswordEntry> entries, SortingOrder order)
     {
         for (int i = 1; i < entries.Count; i++)
@@ -139,15 +189,18 @@ public class Vault
             var key = entries[i];
             int j = i - 1;
 
-            //so it turns out that c# can check if dates are greater without turning them into numbers wow
+            // Compare timestamps based on the requested sort order
+            // For ascending: oldest first (earlier dates before later dates)
+            // For descending: newest first (later dates before earlier dates)
             while (j >= 0 && (order != SortingOrder.Ascending ?
-                       entries[j].Timestamp < key.Timestamp :
-                       entries[j].Timestamp > key.Timestamp))
+                       entries[j].Timestamp < key.Timestamp : // For descending order
+                       entries[j].Timestamp > key.Timestamp)) // For ascending order
             {
-                // Shift entries to the left
+                // Shift entries to make room for insertion
                 entries[j + 1] = entries[j];
                 j--;
             }
+            // Insert the current entry in its sorted position
             entries[j + 1] = key;
         }
     }
