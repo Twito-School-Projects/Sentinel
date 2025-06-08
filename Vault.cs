@@ -1,3 +1,5 @@
+using System.IO.Pipes;
+using BCrypt.Net;
 using Spectre.Console;
 
 namespace CulminatingCS;
@@ -56,7 +58,7 @@ public class Vault
     public void EditEntry(string username, PasswordEntry newEntry)
     {
         // Find an entry in the existing list
-        var entry = PasswordEntries.FirstOrDefault(e => e.Username == username);
+        var entry = PasswordEntries.FirstOrDefault(e => e.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
 
         if (entry != null)
         {
@@ -77,7 +79,7 @@ public class Vault
     public PasswordEntry? GetEntry(string username)
     {
         // Find an entry in the existing list
-        var entry = PasswordEntries.FirstOrDefault(e => e.Username == username);
+        var entry = PasswordEntries.FirstOrDefault(e => e.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
 
         if (entry == null) return entry;
         AnsiConsole.MarkupLine("[bold red]No entry found with that username.[/]");
@@ -105,10 +107,12 @@ public class Vault
 
         menuTable.AddColumn("Username");
         menuTable.AddColumn("Password");
+        menuTable.AddColumn("Date Added");
+
 
         foreach (var entry in PasswordEntries)
         {
-            menuTable.AddRow(entry.Username, entry.EncryptedPassword);
+            menuTable.AddRow(entry.Username, entry.EncryptedPassword, entry.Timestamp.ToShortDateString());
         }
 
         AnsiConsole.Write(menuTable);
@@ -140,7 +144,7 @@ public class Vault
                        entries[j].Timestamp < key.Timestamp :
                        entries[j].Timestamp > key.Timestamp))
             {
-                // Shift entries to the right
+                // Shift entries to the left
                 entries[j + 1] = entries[j];
                 j--;
             }

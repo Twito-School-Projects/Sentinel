@@ -1,3 +1,4 @@
+using BCrypt.Net;
 using Spectre.Console;
 
 namespace CulminatingCS;
@@ -6,8 +7,9 @@ public static class VaultManager
 {
     public static List<Vault> Vaults { get; set; } = new List<Vault>();
     public static bool IsEmpty => Vaults.Count == 0;
-    public static Vault CurrentVault { get; private set; }
-
+    public static string PasswordHash = "";
+    public static Vault? CurrentVault { get; private set; }
+    
     public static void LoadVaults()
     {
         Vaults = FileHandler.LoadVaultsFromCsv();
@@ -100,7 +102,6 @@ public static class VaultManager
     public static void Logout()
     {
         FileHandler.SaveVaultsToCSV(Vaults, false);
-        AnsiConsole.MarkupLine("[green]Successfully logged out.[/]\n");
         CurrentVault = null!;
     }
 }
