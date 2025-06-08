@@ -1,3 +1,5 @@
+namespace CulminatingCS;
+
 public class PasswordEntry
 {
     public string Username { get; set; }
@@ -6,16 +8,11 @@ public class PasswordEntry
     {
         Username = username;
         EncryptedPassword = encryptedPassword;
-
-        if (timestamp == null)
-        {
-            timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        }
-        Timestamp = timestamp;
+        Timestamp = DateTime.TryParse(timestamp, out DateTime result) ? result : DateTime.Now;
     }
 
     public string EncryptedPassword { get; set; }
-    public string Timestamp { get; set; }
+    public DateTime Timestamp { get; set; }
     public string GetDecryptedPassword()
     {
         return "";

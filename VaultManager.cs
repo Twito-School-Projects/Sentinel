@@ -1,11 +1,11 @@
-using BCrypt.Net;
 using Spectre.Console;
+
+namespace CulminatingCS;
 
 public static class VaultManager
 {
     public static List<Vault> Vaults { get; set; } = new List<Vault>();
     public static bool IsEmpty => Vaults.Count == 0;
-    public static string PasswordHash;
     public static Vault CurrentVault { get; private set; }
 
     public static void LoadVaults()
@@ -16,10 +16,10 @@ public static class VaultManager
             vault.PasswordEntries = FileHandler.LoadPasswordsFromCsv(vault.Name);
         }
     }
-    public static void SaveVaults()
-    {
-        //FileHandler.SaveVaultsToCSV(Vaults, false);
-    }
+    // public static void SaveVaults()
+    // {
+    //     FileHandler.SaveVaultsToCSV(Vaults, false);
+    // }
 
     public static void DisplayVaults()
     {
@@ -41,15 +41,12 @@ public static class VaultManager
     }
     public static void CreateVault(string name, string password)
     {
-        var entries = Vaults.Where(e =>
-        {
-            //allows me to ignore case LINQ  is pretty nice, java should add it 
-            return e.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
-        }).ToList();
+        var entries = Vaults.Where(e => e.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
 
         if (entries.Count > 0)
         {
-            throw new Exception("[bold red]A vault with this name already exists.[/]");
+            AnsiConsole.WriteLine("[bold red]A vault with this name already exists.[/]");
+            return;
         }
         string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
 
@@ -63,10 +60,12 @@ public static class VaultManager
 
         if (vaultToDelete is null)
         {
-            throw new Exception("[bold red]Vault does not exist.[/]");
+            AnsiConsole.WriteLine("[bold red]Vault does not exist.[/]");
+            return;
         }
 
         Vaults.Remove(vaultToDelete);
+        FileHandler.DeleteVault(vaultToDelete);
         FileHandler.SaveVaultsToCSV(Vaults, false);
         AnsiConsole.MarkupLine($"[green]Vault '{name}' removed successfully.[/]\n");
     }
@@ -77,10 +76,11 @@ public static class VaultManager
             var vault = Vaults.FirstOrDefault(x => x.Name == name);
             if (vault is null)
             {
-                throw new Exception("[bold red]Vault does not exist.[/]");
+                AnsiConsole.WriteLine("[bold red]Vault does not exist.[/]");
+                return null;
             }
-
-            else if (!BCrypt.Net.BCrypt.Verify(password, vault.PasswordHash))
+            
+            if (!BCrypt.Net.BCrypt.Verify(password, vault.PasswordHash))
             {
                 AnsiConsole.MarkupLine("[bold red]Invalid vault password provided.[/]");
                 return null;
@@ -95,5 +95,12 @@ public static class VaultManager
             AnsiConsole.WriteException(ex);
             return null;
         }
+    }
+
+    public static void Logout()
+    {
+        FileHandler.SaveVaultsToCSV(Vaults, false);
+        AnsiConsole.MarkupLine("[green]Successfully logged out.[/]\n");
+        CurrentVault = null!;
     }
 }

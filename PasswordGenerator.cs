@@ -1,3 +1,5 @@
+namespace CulminatingCS;
+
 public static class PasswordGenerator
 {
     private static Random random = new Random();

@@ -1,6 +1,6 @@
-using System.IO.Pipes;
-using BCrypt.Net;
 using Spectre.Console;
+
+namespace CulminatingCS;
 
 public enum SortingOrder
 {
@@ -63,7 +63,7 @@ public class Vault
             // Update the entry with new values
             entry.Username = newEntry.Username;
             entry.EncryptedPassword = newEntry.EncryptedPassword;
-            entry.Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            entry.Timestamp = DateTime.Now;
 
             FileHandler.SavePasswordsToCSV(this, false);
             AnsiConsole.MarkupLine($"[green]Entry for {username} updated successfully.[/]");
@@ -79,25 +79,17 @@ public class Vault
         // Find an entry in the existing list
         var entry = PasswordEntries.FirstOrDefault(e => e.Username == username);
 
-        if (entry != null)
-        {
-            AnsiConsole.MarkupLine("[bold red]No entry found with that username.[/]");
-            return null;
-        }
-
-        return entry;
+        if (entry == null) return entry;
+        AnsiConsole.MarkupLine("[bold red]No entry found with that username.[/]");
+        return null;
     }
 
 
     public List<PasswordEntry> GetAllEntries()
     {
-        if (IsEmpty)
-        {
-            AnsiConsole.MarkupLine("[bold red]No entries found.[/]");
-            return new List<PasswordEntry>();
-        }
-
-        return PasswordEntries;
+        if (!IsEmpty) return PasswordEntries;
+        AnsiConsole.MarkupLine("[bold red]No entries found.[/]");
+        return [];
     }
 
     public void DisplayAllEntries(SortingOrder order)
@@ -124,26 +116,19 @@ public class Vault
     public List<PasswordEntry> FindEntries(string username)
     {
         // Find entries that match the username
-        var entries = PasswordEntries.Where(e =>
-        {
-            //allows me to ignore case LINQ  is pretty nice, java should add it 
-            return e.Username.Contains(username, StringComparison.OrdinalIgnoreCase);
-        }).ToList();
+        var entries = PasswordEntries.Where(e => e.Username.Contains(username, StringComparison.OrdinalIgnoreCase)).ToList();
 
-        if (entries.Count == 0)
-        {
-            AnsiConsole.MarkupLine("[bold red]No entries found with that username.[/]");
-            return new List<PasswordEntry>();
-        }
-
-        return entries;
+        if (entries.Count != 0) return entries;
+        AnsiConsole.MarkupLine("[bold red]No entries found with that username.[/]");
+        return [];
     }
-    public void SortEntriesByDate(SortingOrder order)
+
+    private void SortEntriesByDate(SortingOrder order)
     {
         InsertionSort(PasswordEntries, order);
     }
 
-    public void InsertionSort(List<PasswordEntry> entries, SortingOrder order)
+    private void InsertionSort(List<PasswordEntry> entries, SortingOrder order)
     {
         for (int i = 1; i < entries.Count; i++)
         {
@@ -151,9 +136,9 @@ public class Vault
             int j = i - 1;
 
             //so it turns out that c# can check if dates are greater without turning them into numbers wow
-            while (j >= 0 && (order == SortingOrder.Ascending ?
-                DateTime.Parse(entries[j].Timestamp) > DateTime.Parse(key.Timestamp) :
-                DateTime.Parse(entries[j].Timestamp) < DateTime.Parse(key.Timestamp)))
+            while (j >= 0 && (order != SortingOrder.Ascending ?
+                       entries[j].Timestamp < key.Timestamp :
+                       entries[j].Timestamp > key.Timestamp))
             {
                 // Shift entries to the right
                 entries[j + 1] = entries[j];
