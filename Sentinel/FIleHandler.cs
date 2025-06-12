@@ -1,11 +1,11 @@
 using Spectre.Console;
 
-namespace CulminatingCS;
+namespace Sentinel;
 
 public static class FileHandler
 {
     /// <summary>The root folder path where vault data is stored.</summary>
-    private static string ROOT_FOLDER = "Resources/";
+    private static string ROOT_FOLDER = "../Resources/";
 
     /// <summary>
     /// Ensures the resources directory exists, creating it if necessary.
@@ -13,7 +13,7 @@ public static class FileHandler
     private static void EnsureDirectoryExists()
     {
         if (Directory.Exists(ROOT_FOLDER)) return;
-        
+
         Directory.CreateDirectory(ROOT_FOLDER);
         AnsiConsole.MarkupLine($"[yellow]Resources directory created at: {ROOT_FOLDER}[/]\n");
     }
@@ -31,7 +31,7 @@ public static class FileHandler
             if (!File.Exists(fileName))
             {
                 AnsiConsole.MarkupLine($"[orange1]Vault does not have a file, creating one[/]\n");
-                File.Create(fileName).Close(); 
+                File.Create(fileName).Close();
                 return [];
             }
 
@@ -80,8 +80,8 @@ public static class FileHandler
 
             if (!File.Exists(fileName))
             {
-                AnsiConsole.MarkupLine($"[orange1]Vault does not have a file, creating one[/]\n");          
-                File.Create(fileName).Close(); 
+                AnsiConsole.MarkupLine($"[orange1]Vault does not have a file, creating one[/]\n");
+                File.Create(fileName).Close();
                 return [];
             }
 
@@ -127,7 +127,7 @@ public static class FileHandler
             if (!File.Exists(fileName))
             {
                 AnsiConsole.MarkupLine($"[orange1]Vault does not have a file, creating one[/]\n");
-                File.Create(fileName).Close(); 
+                File.Create(fileName).Close();
             }
 
             using var writer = new StreamWriter(fileName, append);
@@ -161,7 +161,7 @@ public static class FileHandler
             if (!File.Exists(fileName))
             {
                 AnsiConsole.MarkupLine($"[orange1]Vault does not have a file, creating one[/]\n");
-                File.Create(fileName).Close(); 
+                File.Create(fileName).Close();
             }
 
             // Write each password entry to the CSV file

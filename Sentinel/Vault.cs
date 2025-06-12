@@ -2,7 +2,7 @@ using System.IO.Pipes;
 using BCrypt.Net;
 using Spectre.Console;
 
-namespace CulminatingCS;
+namespace Sentinel;
 
 /// <summary>
 /// Specifies the order for sorting entries by date.

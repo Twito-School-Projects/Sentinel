@@ -1,4 +1,4 @@
-namespace CulminatingCS;
+namespace Sentinel;
 
 /// <summary>
 /// Represents a password entry stored in a vault.

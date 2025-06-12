@@ -1,4 +1,4 @@
-namespace CulminatingCS;
+namespace Sentinel;
 
 /// <summary>
 /// Provides functionality for generating secure random passwords.

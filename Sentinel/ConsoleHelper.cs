@@ -1,6 +1,6 @@
 ﻿using Spectre.Console;
 
-namespace CulminatingCS;
+namespace Sentinel;
 
 public static class ConsoleHelper
 {
@@ -10,5 +10,5 @@ public static class ConsoleHelper
         rule.RuleStyle("white");
         rule.LeftJustified();
         AnsiConsole.Write(rule);
-    } 
+    }
 }

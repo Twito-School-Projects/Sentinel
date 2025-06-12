@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Toheeb Eji
  * Culminating Assignment
  * June 8/25
@@ -11,7 +11,7 @@
 using Spectre.Console;
 using Spectre.Console.Extensions;
 
-namespace CulminatingCS;
+namespace Sentinel;
 
 public class Program
 {
@@ -182,7 +182,7 @@ public class Program
 
         VaultManager.CurrentVault.DeleteEntry(name);
     }
-    
+
     /// <summary>
     /// Deletes a vault from the system.
     /// </summary>
@@ -215,7 +215,7 @@ public class Program
 
         // Create a copy of the entry for updating
         var updatedEntry = new PasswordEntry(entry.Username, entry.Password, entry.Timestamp);
-        
+
         int option = 0;
 
         // Edit loop - continue until user chooses to exit
@@ -238,7 +238,7 @@ public class Program
                     string newPassword = AnsiConsole.Prompt(new TextPrompt<string>("[blue] New Password (enter 'random' for a randomly generated password): [/] "));
                     if (newPassword.ToLower() == "random")
                         newPassword = GeneratePassword();
-                    
+
                     updatedEntry.Password = newPassword; // Assuming encryption is handled elsewhere
                     break;
                 case "Exit":
@@ -261,14 +261,14 @@ public class Program
     private static string GeneratePassword()
     {
         int length = AnsiConsole.Prompt(
-            new TextPrompt<int>("[blue] Enter a password character length: [/] ") 
+            new TextPrompt<int>("[blue] Enter a password character length: [/] ")
                 .Validate((n) => n switch
                 {
                     <= 0 => ValidationResult.Error("[bold red] Length must be greater than 0 [/]"),
-                    < 50 => ValidationResult.Success(),
+                    <= 50 => ValidationResult.Success(),
                     > 50 => ValidationResult.Error("[bold red] Length must be less than 50 characters [/]"),
                 }));
-            
+
         var newPassword = PasswordGenerator.Generate(length);
         return newPassword;
     }
@@ -288,7 +288,7 @@ public class Program
     /// </summary>
     private static void AddVaultPasswordEntry()
     {
-        ConsoleHelper.WriteRule("green", "Password Entry Creation");;
+        ConsoleHelper.WriteRule("green", "Password Entry Creation"); ;
 
         string username = AnsiConsole.Prompt(new TextPrompt<string>("[blue] Username: [/] "));
         string password = AnsiConsole.Prompt(new TextPrompt<string>("[blue] Password (enter 'random' for a randomly generated password): [/] "));
@@ -328,7 +328,7 @@ public class Program
         {
             option = AnsiConsole.Prompt(new TextPrompt<int>("Select an option:"));
             if (option >= 1 && option <= menu.Length) continue;
-            
+
             AnsiConsole.MarkupLine("[bold red]Invalid option.[/]");
         } while (option < 1 || option > menu.Length);
 
@@ -342,6 +342,12 @@ public class Program
     {
         ConsoleHelper.WriteRule("green", "Vault Authentication");
 
+        if (VaultManager.Vaults.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[bold red]No vaults available. Please create a vault first.[/]");
+            CreateVault();
+            return;
+        }
         // Prompt user to select a vault
         var name = AnsiConsole.Prompt(
             new SelectionPrompt<string>()

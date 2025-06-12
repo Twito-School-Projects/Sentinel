@@ -1,7 +1,7 @@
 using BCrypt.Net;
 using Spectre.Console;
 
-namespace CulminatingCS;
+namespace Sentinel;
 
 /// <summary>
 /// Static manager class for handling vault operations.
@@ -15,7 +15,7 @@ public static class VaultManager
 
     /// <summary>Gets the currently authenticated vault, or null if no vault is authenticated.</summary>
     public static Vault? CurrentVault { get; private set; }
-    
+
     /// <summary>
     /// Loads all vaults and their password entries from csv.
     /// </summary>
