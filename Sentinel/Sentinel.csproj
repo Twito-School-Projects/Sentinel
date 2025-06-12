@@ -19,4 +19,9 @@
     </Content>
   </ItemGroup>
 
+   <ItemGroup>
+     <Content Remove="..\Resources\1.csv" />
+     <Content Remove="..\Resources\vaults.csv" />
+   </ItemGroup>
+
 </Project>
